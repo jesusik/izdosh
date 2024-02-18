@@ -1,9 +1,8 @@
 import React from "react";
 import "./Main.scss";
-import VideoPlayer from "../VideoPlayer/VideoPlayer";
 // images
-import microPhoneLogo from "./../../images/microphone-Logo.svg";
 import izdoshLogo from "../../images/izdosh.png";
+// components
 import Camera from "../Camera/Camera";
 const Main = () => {
   return (

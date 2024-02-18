@@ -4,16 +4,21 @@ import axios from "axios";
 const Camera = () => {
   const videoRef = useRef(null);
   const photoRef = useRef(null);
-  const [hasPhoto, setHasPhoto] = useState(false);
+  const [isFrontCamera, setIsFrontCamera] = useState(false);
+
   useEffect(() => {
+    const constraints = {
+      video: {
+        facingMode: isFrontCamera ? "user" : "environment", // 'user' for front camera, 'environment' for back camera
+      },
+    };
     const initializeCamera = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1080, height: 1920 },
+          video: { width: 1080, height: 1920 }, constraints
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          // Wait for the metadata to be loaded before playing
           videoRef.current.addEventListener("loadedmetadata", () => {
             videoRef.current.play().catch((error) => {
               console.error("Error playing video:", error);
@@ -24,9 +29,9 @@ const Camera = () => {
         console.error("Error accessing camera:", error);
       }
     };
-  
+
     initializeCamera();
-  
+
     return () => {
       const currentVideoRef = videoRef.current;
       if (currentVideoRef && currentVideoRef.srcObject) {
@@ -35,9 +40,11 @@ const Camera = () => {
         tracks.forEach((track) => track.stop());
       }
     };
-  }, []);
-  
-  
+  }, [isFrontCamera]);
+
+  const handleCameraSwitch = () => {
+    setIsFrontCamera((prevState) => !prevState);
+  };
 
   const takePhoto = async () => {
     const width = 414;
@@ -49,14 +56,15 @@ const Camera = () => {
 
     const ctx = photo.getContext("2d");
     ctx.drawImage(video, 0, 0, width, height);
-    setHasPhoto(true);
 
     // Convert canvas image to base64 data URL
     const dataUrl = photo.toDataURL("image/jpeg");
 
     // Send dataUrl to server using Axios
     try {
-      const response = await axios.post("https://httpbin.org/post", { image: dataUrl });
+      const response = await axios.post("https://httpbin.org/post", {
+        image: dataUrl,
+      });
       console.log("Image uploaded successfully:", response.data);
       // Handle success, e.g., show a success message
     } catch (error) {
@@ -69,8 +77,9 @@ const Camera = () => {
     <>
       <div className="camera">
         <video onClick={takePhoto} ref={videoRef} autoPlay></video>
+        <button onClick={handleCameraSwitch}>switch</button>
       </div>
-        <canvas ref={photoRef} style={{display: 'none'}}></canvas>
+      <canvas ref={photoRef} style={{ display: "none" }}></canvas>
     </>
   );
 };
