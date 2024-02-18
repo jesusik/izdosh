@@ -6,8 +6,9 @@ const Camera = () => {
   const photoRef = useRef(null);
   const [isFrontCamera, setIsFrontCamera] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(null);
-  const [responseData, setResponseData] = useState(null); // State to store fetched data
+  const [responseData, setResponseData] = useState(null); 
   const url = "http://172.24.200.54:8000/api/v1/image_process/";
+
   useEffect(() => {
     const initializeCamera = async () => {
       try {
@@ -32,13 +33,12 @@ const Camera = () => {
         setPermissionGranted(false);
       }
     };
-
     initializeCamera();
   }, [isFrontCamera]);
 //getting info
   const fetchData = async () => {
     try {
-      const response = await axios.get("https://api.example.com/data");
+      const response = await axios.get(url);
       setResponseData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -59,12 +59,9 @@ const Camera = () => {
       console.log(error);
     });
   };
-
-
-
   const takePhoto = async () => {
-    const width = 414;
-    const height = 800;
+    const width = 1080;
+    const height = 1900;
     const video = videoRef.current;
     const photo = photoRef.current;
     photo.width = width;
@@ -80,7 +77,7 @@ const Camera = () => {
         image: dataUrl,
       });
       console.log("Image uploaded successfully:", response.data);
-      // fetchData(); // Fetch data after successfully posting the image
+      fetchData(); // Fetch data after successfully posting the image
     } catch (error) {
       console.error("Error uploading image:", error);
     }
@@ -90,8 +87,7 @@ const Camera = () => {
   if (permissionGranted === false) {
     return (
       <div>
-        Camera permission denied. Please grant access to the camera in your
-        browser settings.
+       
       </div>
     );
   }
@@ -100,13 +96,13 @@ const Camera = () => {
     <>
       {responseData && (
         <div className="responseData">
-          <b>5000</b>
+          <b>500</b>
         </div>
       )}
 
       <div className="camera">
         <video onClick={takePhoto} ref={videoRef}></video>
-        <button onClick={handleCameraSwitch}>switch</button>
+        <button onClick={takePhoto}>takePhoto</button>
       </div>
       <canvas ref={photoRef} style={{ display: "none" }}></canvas>
     </>
