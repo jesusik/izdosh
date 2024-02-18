@@ -30,15 +30,42 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
+  height: 80vh;
 }
 
 .camera{
     position: relative;
     bottom: 60px;
+    height: 100%;
 
     video{
         width: 100%;
         height: 100%;
     }
+    button{
+      background-color: transparent;
+      font-size: 40px;
+      width: 100%;
+      border: none;
+      color: rgb(224, 218, 218);
+      background-color: #228798;
+      background-blend-mode: darken;
+      padding: 10px 0;
+      border-radius: 10px;
+    }
+}
+
+
+.responseData{
+  z-index: 1;
+  font-size: 60px;
+  text-align: center;
+  color: red;
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  background-color: #e4fd00;
+  padding: 10px;
+  border-radius: 5px;
+
 }
