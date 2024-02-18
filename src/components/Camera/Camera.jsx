@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import buttonClickSound from "../../sounds/cameraSound.mp3"; // Import your button click sound file
+import { resolvePath } from "react-router-dom";
 
 const Camera = () => {
   const videoRef = useRef(null);
   const photoRef = useRef(null);
+  const buttonClickAudioRef = useRef(null); // Reference to the audio element
   const [isFrontCamera, setIsFrontCamera] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(null);
-  const [responseData, setResponseData] = useState(null); 
+  const [responseData, setResponseData] = useState(null);
   const url = "http://172.24.200.54:8000/api/v1/image_process/";
 
   useEffect(() => {
@@ -35,30 +38,24 @@ const Camera = () => {
     };
     initializeCamera();
   }, [isFrontCamera]);
-//getting info
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(url);
-      setResponseData(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+
+  // Function to play button click sound
+  const playButtonClickSound = () => {
+    if (buttonClickAudioRef.current) {
+      buttonClickAudioRef.current.play();
     }
   };
-//switch
-  const handleCameraSwitch = () => {
-    setIsFrontCamera((prevState) => !prevState);
-    console.log(isFrontCamera);
-  };
 
-  const postData = async () => {
-    axios.get(url)
-    .then(response => {
-      setResponseData(response.data.message);
-    })
-    .catch(error => {
-      console.log(error);
-    });
-  };
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get(url);
+  //     setResponseData(response);
+  //     console.log(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
+
   const takePhoto = async () => {
     const width = 1080;
     const height = 1900;
@@ -76,8 +73,8 @@ const Camera = () => {
       const response = await axios.post(url, {
         image: dataUrl,
       });
-      console.log("Image uploaded successfully:", response.data);
-      fetchData(); // Fetch data after successfully posting the image
+      console.log("Image uploaded successfully:", response.data.sum);
+      setResponseData(response.data);
     } catch (error) {
       console.error("Error uploading image:", error);
     }
@@ -87,7 +84,8 @@ const Camera = () => {
   if (permissionGranted === false) {
     return (
       <div>
-       
+        Camera permission denied. Please grant access to the camera in your
+        browser settings.
       </div>
     );
   }
@@ -96,15 +94,24 @@ const Camera = () => {
     <>
       {responseData && (
         <div className="responseData">
-          <b>500</b>
+          <b>{responseData.sum}</b>
         </div>
       )}
 
       <div className="camera">
         <video onClick={takePhoto} ref={videoRef}></video>
-        <button onClick={takePhoto}>takePhoto</button>
+        <button
+          onClick={() => {
+            takePhoto();
+            playButtonClickSound();
+          }}
+        >
+          takePhoto
+        </button>
       </div>
       <canvas ref={photoRef} style={{ display: "none" }}></canvas>
+      {/* Audio element for button click sound */}
+      <audio ref={buttonClickAudioRef} src={buttonClickSound} />
     </>
   );
 };
